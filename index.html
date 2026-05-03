@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unibot | Smart Campus Companion</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-left">
+                <h1>Unibot</h1>
+                <p>Smart Campus Companion</p>
+            </div>
+            <div class="header-right" id="student-profile" style="display:none; align-items: center; gap: 15px;">
+                <div style="text-align: right;">
+                    <span id="display-name" style="display: block; font-weight: 600; color: var(--text-main);">Student Name</span>
+                    <span id="display-reg" style="display: block; font-size: 0.75rem; color: var(--text-dim);">BCA2024</span>
+                </div>
+                <button id="student-logout-btn" class="secondary-btn" style="padding: 8px 12px; font-size: 0.8rem;">
+                    <i data-lucide="log-out" style="width: 14px; height: 14px; margin-right: 4px;"></i>Logout
+                </button>
+            </div>
+        </header>
+
+        <main class="chat-window" id="chat-window">
+        </main>
+
+        <div class="quick-actions">
+            <button class="action-btn" data-action="attendance">
+                <i data-lucide="bar-chart-3"></i>
+                <span>Attendance</span>
+            </button>
+            <button class="action-btn" data-action="seating">
+                <i data-lucide="armchair"></i>
+                <span>Seating</span>
+            </button>
+            <button class="action-btn" data-action="navigation">
+                <i data-lucide="map-pin"></i>
+                <span>Navigation</span>
+            </button>
+            <button class="action-btn" data-action="results">
+                <i data-lucide="file-text"></i>
+                <span>Results</span>
+            </button>
+        </div>
+
+        <footer class="controls">
+            <div class="input-wrapper">
+                <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+                <button id="send-btn">
+                    <i data-lucide="send"></i>
+                </button>
+            </div>
+            <button class="mic-btn" id="mic-btn">
+                <i data-lucide="mic"></i>
+            </button>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

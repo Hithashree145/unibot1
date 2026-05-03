@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unibot Login Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { justify-content: center; align-items: center; min-height: 100vh; background: var(--bg-gradient); }
+
+        /* Fix all panels to be full-width column flex */
+        #student-login-panel,
+        #student-register-panel,
+        #admin-login-panel,
+        #admin-register-panel,
+        #admin-otp-panel {
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+        }
+
+        #student-login-panel { display: flex; } /* default visible */
+
+        /* Method toggle: always full width, horizontal */
+        .method-toggle {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Form panels: stack vertically, full width */
+        .form-panel {
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .form-panel.visible { display: flex; }
+
+
+        .portal-card {
+            width: 100%;
+            max-width: 460px;
+            background: #ffffff;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 36px 32px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .portal-logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .portal-logo h1 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .portal-logo p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* Role Selector */
+        .role-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #f1f5f9;
+            border-radius: 14px;
+            padding: 5px;
+            margin-bottom: 24px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .role-toggle-btn {
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .role-toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        /* Method selector for student */
+        .method-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .method-btn {
+            padding: 8px;
+            border-radius: 9px;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .method-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* Camera preview for face ID */
+        .camera-box {
+            background: #f1f5f9;
+            border: 2px dashed var(--glass-border);
+            border-radius: 16px;
+            aspect-ratio: 4/3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-box video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+            display: none;
+        }
+
+        .camera-box video.active { display: block; }
+
+        .camera-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .face-scan-overlay {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .face-scan-overlay.active { display: flex; }
+
+        .scan-ring {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 3px solid #334155;
+            box-shadow: 0 0 30px rgba(51,65,85,0.1);
+            animation: pulse-scan 1.5s infinite;
+        }
+
+        @keyframes pulse-scan {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 130px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #334155, transparent);
+            animation: scan-sweep 1.5s infinite;
+        }
+
+        @keyframes scan-sweep {
+            0% { transform: translateY(-60px); }
+            100% { transform: translateY(60px); }
+        }
+
+        /* OTP input */
+        .otp-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .otp-group input {
+            flex: 1;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+        }
+
+        /* Tab action links */
+        .action-link {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .action-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .action-link a:hover { text-decoration: underline; }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        /* Status message */
+        .status-msg {
+            text-align: center;
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status-msg.show { display: block; }
+        .status-msg.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .status-msg.error { background: #fff1f2; color: #991b1b; border: 1px solid #fecdd3; }
+        .status-msg.info { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--glass-border); }
+    </style>
+</head>
+<body>
+    <div class="portal-card">
+        <!-- Logo -->
+        <div class="portal-logo">
+            <h1>Unibot</h1>
+            <p>Your Smart Campus Companion</p>
+        </div>
+
+        <!-- Role Toggle -->
+        <div class="role-toggle">
+            <button class="role-toggle-btn active" id="btn-student">
+                <i data-lucide="graduation-cap" style="width:16px;"></i> Student
+            </button>
+            <button class="role-toggle-btn" id="btn-admin">
+                <i data-lucide="shield" style="width:16px;"></i> Admin
+            </button>
+        </div>
+
+        <!-- ===================== STUDENT LOGIN ===================== -->
+        <div id="student-login-panel">
+            <!-- Login Method Toggle -->
+            <div class="method-toggle">
+                <button class="method-btn active" id="method-face">
+                    <i data-lucide="scan-face" style="width:14px;"></i> Face ID
+                </button>
+                <button class="method-btn" id="method-otp">
+                    <i data-lucide="hash" style="width:14px;"></i> Reg No + OTP
+                </button>
+            </div>
+
+            <!-- Face ID Method -->
+            <div class="form-panel visible" id="face-login-panel">
+                <div class="camera-box" id="camera-box">
+                    <video id="camera-feed" autoplay muted playsinline></video>
+                    <div class="camera-placeholder" id="camera-placeholder">
+                        <i data-lucide="camera" style="width:40px; height:40px; color:#6366f1;"></i>
+                        <span>Camera off</span>
+                        <span style="font-size:0.75rem;">Click below to start face scan</span>
+                    </div>
+                    <div class="face-scan-overlay" id="scan-overlay">
+                        <div class="scan-ring"></div>
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+                <div class="status-msg" id="face-status"></div>
+                <button id="start-face-scan-btn" class="primary-btn">
+                    <i data-lucide="scan-face" style="display:inline; margin-right:6px;"></i>Start Face Scan
+                </button>
+            </div>
+
+            <!-- Reg No + OTP Method -->
+            <div class="form-panel" id="otp-login-panel">
+                <!-- Step 1: Enter Reg Number -->
+                <div id="otp-step1" style="display:flex; flex-direction:column; gap:12px; width:100%;">
+                    <div class="input-group">
+                        <i data-lucide="hash"></i>
+                        <input type="text" id="student-reg-input" placeholder="Register Number (e.g. BCA2024s64)" required>
+                    </div>
+                    <button id="send-student-otp-btn" class="primary-btn">
+                        <i data-lucide="send" style="display:inline; margin-right:6px;"></i>Send OTP
+                    </button>
+                </div>
+
+                <!-- Step 2: Enter OTP -->
+                <div id="otp-step2" style="display:none; flex-direction:column; gap:12px; width:100%;">
+                    <p style="color: var(--text-dim); font-size: 0.85rem; text-align:center;">
+                        OTP sent! Enter the 4-digit code below.
+                    </p>
+                    <div class="input-group">
+                        <i data-lucide="key"></i>
+                        <input type="text" id="student-otp-input" placeholder="Enter 4-digit OTP" maxlength="4" style="letter-spacing: 0.3em; font-size: 1.1rem; text-align: center;">
+                    </div>
+                    <button id="verify-student-otp-btn" class="primary-btn">Verify & Login</button>
+                    <div class="action-link">
+                        <a id="resend-otp-link">Resend OTP</a>
+                    </div>
+                </div>
+
+                <div class="status-msg" id="otp-status"></div>
+            </div>
+
+            <!-- New to Unibot? Register link — always at bottom -->
+            <div class="action-link" style="margin-top: 4px; width:100%; text-align:center;">
+                New student? <a id="go-register">Register here</a>
+            </div>
+
+        </div>
+
+        <!-- ===================== STUDENT REGISTRATION ===================== -->
+        <div id="student-register-panel">
+            <div class="input-group">
+                <i data-lucide="user"></i>
+                <input type="text" id="reg-name" placeholder="Full Name (alphabets only)" required pattern="[A-Za-z\s]+">
+            </div>
+            <div class="input-group">
+                <i data-lucide="phone"></i>
+                <input type="tel" id="reg-phone" placeholder="Phone Number (10 digits)" required pattern="[0-9]{10}">
+            </div>
+            <div class="input-group">
+                <i data-lucide="hash"></i>
+                <input type="text" id="reg-number" placeholder="Register Number" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="mail"></i>
+                <input type="email" id="reg-email" placeholder="Email Address" required>
+            </div>
+
+            <div class="upload-section">
+                <label>Upload Face Images (JPG/JPEG only)</label>
+                <p class="upload-guide">Required: Front, Left, Right, Slight Up/Down, Slant face</p>
+                <div class="upload-area" id="upload-area">
+                    <i data-lucide="upload-cloud"></i>
+                    <span>Click to upload JPG/JPEG images (Max 5)</span>
+                    <input type="file" id="face-images" accept=".jpg,.jpeg" multiple>
+                </div>
+                <div class="image-preview-grid" id="preview-grid"></div>
+            </div>
+
+            <button id="register-submit-btn" class="primary-btn">Register Student</button>
+            <div class="action-link">
+                Already registered? <a id="go-login">Login here</a>
+            </div>
+        </div>
+
+        <!-- ===================== ADMIN LOGIN ===================== -->
+        <div id="admin-login-panel">
+            <div class="input-group">
+                <i data-lucide="mail"></i>
+                <input type="email" id="admin-email-input" placeholder="Admin Email" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="lock"></i>
+                <input type="password" id="admin-password-input" placeholder="Password" required>
+            </div>
+            <div style="text-align: right; margin-top: -6px;">
+                <a id="admin-forgot-link" style="color: var(--secondary); font-size: 0.85rem; text-decoration: none; cursor: pointer;">Forgot Password?</a>
+            </div>
+            <button id="admin-login-btn" class="primary-btn">
+                <i data-lucide="shield-check" style="display:inline; margin-right:6px;"></i>Admin Login
+            </button>
+            <div class="divider">or</div>
+            <div class="action-link">
+                New admin? <a id="go-admin-register">Register here</a>
+            </div>
+        </div>
+
+        <!-- ===================== ADMIN REGISTER ===================== -->
+        <div id="admin-register-panel">
+            <div class="input-group">
+                <i data-lucide="user"></i>
+                <input type="text" id="admin-reg-name" placeholder="Full Name" required pattern="[A-Za-z\s]+">
+            </div>
+            <div class="input-group">
+                <i data-lucide="phone"></i>
+                <input type="tel" id="admin-reg-phone" placeholder="Phone Number (10 digits)" required pattern="[0-9]{10}">
+            </div>
+            <div class="input-group">
+                <i data-lucide="mail"></i>
+                <input type="email" id="admin-reg-email" placeholder="Official Email" required>
+            </div>
+            <div class="input-group">
+                <i data-lucide="lock"></i>
+                <input type="password" id="admin-reg-password" placeholder="Password" required>
+            </div>
+            <button id="admin-register-btn" class="primary-btn">Register Admin</button>
+            <div class="action-link">
+                Already registered? <a id="go-admin-login">Login here</a>
+            </div>
+        </div>
+
+        <!-- ===================== ADMIN OTP RESET ===================== -->
+        <div id="admin-otp-panel">
+            <div style="text-align:center; color: var(--text-dim); font-size:0.9rem;">
+                Enter your email to receive a password reset OTP.
+            </div>
+            <div class="input-group" id="admin-reset-email-group">
+                <i data-lucide="mail"></i>
+                <input type="email" id="admin-reset-email" placeholder="Admin Email">
+            </div>
+            <button id="admin-send-otp-btn" class="primary-btn">Send Reset OTP</button>
+
+            <div id="admin-otp-verify-block" style="display:none; flex-direction:column; gap:12px;">
+                <div class="input-group">
+                    <i data-lucide="key"></i>
+                    <input type="text" id="admin-otp-input" placeholder="Enter 4-digit OTP" maxlength="4" style="letter-spacing:0.3em; text-align:center;">
+                </div>
+                <button id="admin-verify-otp-btn" class="primary-btn">Verify OTP</button>
+                <div style="text-align: center; margin-top: 4px;">
+                    <a id="admin-resend-otp-btn" style="color: var(--secondary); font-size: 0.85rem; cursor: pointer; opacity: 1; transition: opacity 0.3s;">Didn't receive OTP? Resend</a>
+                </div>
+            </div>
+
+            <div id="admin-new-pwd-block" style="display:none; flex-direction:column; gap:12px;">
+                <div class="input-group">
+                    <i data-lucide="lock"></i>
+                    <input type="password" id="admin-new-password" placeholder="New Password">
+                </div>
+                <button id="admin-reset-pwd-btn" class="primary-btn">Reset Password</button>
+            </div>
+
+            <div class="action-link">
+                <a id="back-to-admin-login">← Back to Login</a>
+            </div>
+        </div>
+
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="portal.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

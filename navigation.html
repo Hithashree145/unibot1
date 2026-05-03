@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Navigation | Unibot</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { align-items: flex-start; padding: 0; overflow: hidden; background: var(--bg-gradient); }
+
+        .nav-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: row;
+        }
+
+        /* Sidebar */
+        .nav-sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            gap: 16px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 10;
+            box-shadow: 10px 0 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-sidebar-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--text-main); }
+
+        /* Search */
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: #f1f5f9;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            padding: 12px 16px 12px 42px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+
+        /* Search results dropdown */
+        .search-results {
+            background: #ffffff;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            margin-top: 6px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            width: 100%;
+            z-index: 20;
+        }
+
+        .search-results.open { display: flex; }
+
+        .search-result-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.15s;
+            color: var(--text-main);
+        }
+
+        .search-result-item:hover { background: #f1f5f9; }
+
+        /* Floor Filter */
+        .floor-filter {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .floor-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: #f8fafc;
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .floor-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        /* Destination Info */
+        .destination-card {
+            background: #f8fafc;
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 16px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .destination-card.visible { display: flex; }
+
+        .destination-card .dest-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .destination-card .dest-meta {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+        }
+
+        .destination-card .steps-list {
+            font-size: 0.82rem;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-top: 1px solid var(--glass-border);
+            padding-top: 10px;
+            margin-top: 4px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
+            flex-shrink: 0;
+        }
+
+        /* Rooms quick list */
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .rooms-quick-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .room-quick-item {
+            padding: 8px 12px;
+            background: #ffffff;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.83rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+            color: var(--text-main);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .room-quick-item:hover { background: #f8fafc; border-color: var(--primary); }
+        .room-quick-item.selected { background: #f1f5f9; border-color: var(--primary); }
+
+        .room-type-badge {
+            font-size: 0.7rem;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: var(--text-dim);
+        }
+
+        /* Map Area */
+        .map-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* "You are here" pulse */
+        .you-are-here-pulse {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(51, 65, 85, 0.4);
+            animation: pulse-here 1.5s infinite;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        @keyframes pulse-here {
+            0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%,-50%) scale(3); opacity: 0; }
+        }
+
+        /* Legend */
+        .map-legend {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            background: #ffffff;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.78rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            color: var(--text-main);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        /* Floor indicator */
+        .floor-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ffffff;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Chatbot command banner */
+        .chatbot-banner {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            color: var(--primary);
+            display: none;
+            animation: slideDown 0.4s ease;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chatbot-banner.visible { display: block; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-container">
+        <!-- Sidebar -->
+        <aside class="nav-sidebar">
+            <a href="index.html" class="back-link"><i data-lucide="arrow-left"></i> Back to Unibot</a>
+            <h2 class="nav-sidebar-title">Campus Navigation</h2>
+
+            <!-- Path Inputs -->
+            <div class="section-label">Plan Your Route</div>
+            <div class="path-inputs">
+                <div class="input-group">
+                    <i data-lucide="map-pin" style="width:16px; color: #6366f1;"></i>
+                    <input type="text" id="source-search" placeholder='From: (e.g. Main Entrance)'>
+                    <button id="use-gps-source-btn" title="Use My Current Location" style="background:none; border:none; color:var(--primary); cursor:pointer; padding: 4px;">
+                        <i data-lucide="locate-fixed" style="width:16px;"></i>
+                    </button>
+                    <div class="search-results" id="source-results"></div>
+                </div>
+                <div class="input-group" style="margin-top: 8px;">
+                    <i data-lucide="navigation" style="width:16px; color: #f59e0b;"></i>
+                    <input type="text" id="dest-search" placeholder='To: (e.g. Room 101)'>
+                    <div class="search-results" id="dest-results"></div>
+                </div>
+            </div>
+
+            <!-- Floor Filter -->
+            <div class="section-label">Floor</div>
+            <div class="floor-filter">
+                <button class="floor-btn active" data-floor="0">Ground</button>
+                <button class="floor-btn" data-floor="1">First</button>
+                <button class="floor-btn" data-floor="2">Second</button>
+            </div>
+
+            <!-- Destination Info -->
+            <div class="destination-card" id="destination-card">
+                <div class="dest-name" id="dest-name">—</div>
+                <div class="dest-meta" id="dest-meta">—</div>
+                <div class="steps-list" id="steps-list"></div>
+                <button id="clear-route-btn" class="secondary-btn" style="padding: 8px; font-size: 0.8rem; margin-top: 4px;">Clear Route</button>
+            </div>
+
+            <!-- GPS Control -->
+            <div class="section-label">Guidance</div>
+            <div class="guidance-controls" style="display: flex; flex-direction: column; gap: 8px;">
+                <button id="track-location-btn" class="primary-btn" style="padding: 10px; font-size: 0.85rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="map-pin" style="width:16px;"></i> Locate Me
+                </button>
+                <button id="voice-toggle-btn" class="secondary-btn" style="padding: 10px; font-size: 0.85rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="volume-2" id="voice-icon" style="width:16px;"></i> Voice Guidance: ON
+                </button>
+                <div id="gps-status" style="font-size: 0.75rem; color: var(--text-dim); text-align: center;">
+                    GPS: Inactive
+                </div>
+            </div>
+
+            <!-- Rooms Quick List -->
+            <div class="section-label">All Rooms</div>
+            <div class="rooms-quick-list" id="rooms-quick-list"></div>
+        </aside>
+
+        <!-- Map Area -->
+        <div class="map-area" id="map-area">
+            <canvas id="map-canvas"></canvas>
+            <div class="floor-indicator" id="floor-indicator">Ground Floor</div>
+            <div class="chatbot-banner" id="chatbot-banner">
+                <i data-lucide="message-circle" style="display:inline; margin-right:6px; vertical-align:middle;"></i>
+                <span id="chatbot-banner-text"></span>
+            </div>
+            <!-- Legend -->
+            <div class="map-legend">
+                <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">Legend</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#6366f1;"></div> Classroom</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#0891b2;"></div> Lab</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#059669;"></div> Common Area</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#d97706;"></div> Office</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#6366f1; border: 2px solid #4ade80;"></div> You Are Here</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div> Destination</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="navigation.js"></script>
+    <script src="voice-assistant.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

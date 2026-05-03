@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal | Unibot</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container auth-container">
+        <header>
+            <h1>Student Portal</h1>
+            <p id="auth-subtitle">Login to access your campus companion</p>
+        </header>
+
+        <div class="auth-tabs">
+            <button class="tab-btn active" id="tab-login">Login</button>
+            <button class="tab-btn" id="tab-register">Register</button>
+        </div>
+
+        <main class="auth-content">
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active">
+                <div class="input-group">
+                    <i data-lucide="user"></i>
+                    <input type="text" id="login-name" placeholder="Student Name" required>
+                </div>
+                <div class="input-group">
+                    <i data-lucide="lock"></i>
+                    <input type="password" id="login-password" placeholder="Generated Password" required>
+                </div>
+                <button type="submit" class="primary-btn">Login</button>
+            </form>
+
+            <!-- Registration Form -->
+            <form id="register-form" class="auth-form">
+                <div class="input-group">
+                    <i data-lucide="user"></i>
+                    <input type="text" id="reg-name" placeholder="Student Name (Alphabets only)" required pattern="[A-Za-z\s]+">
+                </div>
+                <div class="input-group">
+                    <i data-lucide="phone"></i>
+                    <input type="tel" id="reg-phone" placeholder="Phone Number (10 digits)" required pattern="[0-9]{10}">
+                </div>
+                <div class="input-group">
+                    <i data-lucide="hash"></i>
+                    <input type="text" id="reg-number" placeholder="Register Number" required>
+                </div>
+                <div class="input-group">
+                    <i data-lucide="mail"></i>
+                    <input type="email" id="reg-email" placeholder="Email Address" required>
+                </div>
+                
+                <div class="input-group">
+                    <i data-lucide="lock"></i>
+                    <input type="password" id="reg-password" placeholder="Create Password" required>
+                </div>
+
+                <div class="upload-section">
+                    <label>Upload Face Images (JPG/JPEG only)</label>
+                    <p class="upload-guide">Required angles: Front, Left side, Right side, Slight up/down, Slant face</p>
+                    <div class="upload-area" id="upload-area">
+                        <i data-lucide="upload-cloud"></i>
+                        <span>Click to select JPG/JPEG images (Max 5)</span>
+                        <input type="file" id="face-images" accept=".jpg, .jpeg" multiple>
+                    </div>
+                    <div class="image-preview-grid" id="preview-grid"></div>
+                </div>
+
+                <button type="submit" class="primary-btn">Register</button>
+            </form>
+        </main>
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

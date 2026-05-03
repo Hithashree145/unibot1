@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Unibot</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container auth-container">
+        <header>
+            <h1>Admin Portal</h1>
+            <p id="admin-subtitle">Secure access for administrators</p>
+        </header>
+
+        <div class="auth-tabs">
+            <button class="tab-btn active" id="tab-admin-login">Login</button>
+            <button class="tab-btn" id="tab-admin-register">Register</button>
+        </div>
+
+        <main class="auth-content">
+            <!-- Login Form -->
+            <form id="admin-login-form" class="auth-form active">
+                <div class="input-group">
+                    <i data-lucide="user"></i>
+                    <input type="text" id="login-name" placeholder="Admin Name" required>
+                </div>
+                <div class="input-group">
+                    <i data-lucide="lock"></i>
+                    <input type="password" id="login-password" placeholder="Generated Password" required>
+                </div>
+                <div style="text-align: right; margin-top: -10px;">
+                    <a href="#" id="forgot-pwd-link" style="color: var(--secondary); font-size: 0.9rem; text-decoration: none;">Forgot Password?</a>
+                </div>
+                <button type="submit" class="primary-btn">Secure Login</button>
+            </form>
+
+            <!-- Registration Form -->
+            <form id="admin-register-form" class="auth-form">
+                <div class="input-group">
+                    <i data-lucide="user"></i>
+                    <input type="text" id="reg-name" placeholder="Full Name (Alphabets only)" required pattern="[A-Za-z\s]+">
+                </div>
+                <div class="input-group">
+                    <i data-lucide="phone"></i>
+                    <input type="tel" id="reg-phone" placeholder="Phone Number (10 digits)" required pattern="[0-9]{10}">
+                </div>
+                <div class="input-group">
+                    <i data-lucide="mail"></i>
+                    <input type="email" id="reg-email" placeholder="Official Email Address" required>
+                </div>
+                <div class="input-group">
+                    <i data-lucide="lock"></i>
+                    <input type="password" id="reg-password" placeholder="Create Strong Password" required>
+                </div>
+                
+                <button type="submit" class="primary-btn">Register Admin</button>
+            </form>
+
+            <!-- Forgot Password Flow (Hidden initially) -->
+            <div id="otp-section" class="auth-form" style="display: none;">
+                <h3>Reset Password</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 10px;">Enter your email to receive an OTP.</p>
+                <div class="input-group" id="otp-email-group">
+                    <i data-lucide="mail"></i>
+                    <input type="email" id="otp-email" placeholder="Admin Email">
+                </div>
+                <button type="button" id="send-otp-btn" class="primary-btn">Send OTP</button>
+
+                <div id="verify-otp-block" style="display: none; margin-top: 15px;">
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 10px;">An OTP was sent to your email.</p>
+                    <div class="input-group">
+                        <i data-lucide="key"></i>
+                        <input type="text" id="otp-input" placeholder="Enter 4-digit OTP" maxlength="4">
+                    </div>
+                    <button type="button" id="verify-otp-btn" class="primary-btn">Verify OTP</button>
+                </div>
+
+                <div id="new-pwd-block" style="display: none; margin-top: 15px;">
+                    <div class="input-group">
+                        <i data-lucide="lock"></i>
+                        <input type="password" id="new-password" placeholder="New Password">
+                    </div>
+                    <button type="button" id="reset-pwd-btn" class="primary-btn">Reset Password</button>
+                </div>
+                
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="#" id="back-to-login" style="color: var(--text-dim); text-decoration: none; font-size: 0.9rem;">Back to Login</a>
+                </div>
+            </div>
+        </main>
+        
+        <div id="toast" class="toast"></div>
+
+        <div style="text-align: center; margin-top: 20px; padding-bottom: 20px;">
+            <p style="color: var(--text-dim); font-size: 0.95rem;">
+                Are you a student? 
+                <a href="portal.html" style="color: var(--primary); font-weight: bold; text-decoration: none; margin-left: 5px;">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="admin-auth.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

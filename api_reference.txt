@@ -1,0 +1,95 @@
+# Unibot API — Quick Reference
+# =============================================
+# BASE URL: http://localhost/unibot/api.php
+#
+# TABLES: students | admins | attendance | seating | results
+# =============================================
+
+# ---- STUDENTS ----
+
+# List all students
+GET  /api.php?table=students
+
+# List approved students only
+GET  /api.php?table=students&approved=1
+
+# Get single student
+GET  /api.php?table=students&id=1
+
+# Create student
+POST /api.php?table=students
+Body: { "name":"Ria","phone":"9845416429","register_no":"BCA2024S64","email":"ria@email.com","approved":0 }
+
+# Update student
+PUT  /api.php?table=students&id=1
+Body: { "name":"Ria Sharma","approved":1 }
+
+# Approve student (partial update)
+PUT  /api.php?table=students&id=1
+Body: { "approved":1 }
+
+# Delete student
+DELETE /api.php?table=students&id=1
+
+# ---- ADMINS ----
+
+GET    /api.php?table=admins
+GET    /api.php?table=admins&id=1
+POST   /api.php?table=admins
+Body: { "name":"Admin","phone":"9999999999","email":"admin@unibot.edu","password":"secret" }
+PUT    /api.php?table=admins&id=1
+Body: { "password":"newpassword" }
+DELETE /api.php?table=admins&id=1
+
+# ---- ATTENDANCE ----
+
+# All attendance records
+GET  /api.php?table=attendance
+
+# Filter by student
+GET  /api.php?table=attendance&student_id=1
+
+# Filter by date
+GET  /api.php?table=attendance&date=2026-05-02
+
+# Mark attendance (upserts on duplicate student+date)
+POST /api.php?table=attendance
+Body: { "student_id":1, "date":"2026-05-02", "status":"present" }
+# status: present | absent | late
+
+PUT    /api.php?table=attendance&id=1
+Body: { "status":"present" }
+DELETE /api.php?table=attendance&id=1
+
+# ---- SEATING ----
+
+GET    /api.php?table=seating
+GET    /api.php?table=seating&id=1
+POST   /api.php?table=seating
+Body: { "student_id":1, "seat_number":5 }
+PUT    /api.php?table=seating&id=1
+Body: { "seat_number":10 }
+DELETE /api.php?table=seating&id=1
+
+# ---- RESULTS ----
+
+# All results
+GET  /api.php?table=results
+
+# Results for one student
+GET  /api.php?table=results&student_id=1
+
+POST /api.php?table=results
+Body: { "student_id":1, "subject":"Mathematics", "marks":88, "max_marks":100, "exam_date":"2026-05-02" }
+
+PUT    /api.php?table=results&id=1
+Body: { "marks":92 }
+
+DELETE /api.php?table=results&id=1
+
+# =============================================
+# RESPONSE FORMAT
+# =============================================
+# Success 200/201:  { "data": [...], "count": N }
+# Created 201:      { "message": "Created", "id": N }
+# Error 4xx/5xx:    { "error": "message" }
